@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-
+require('dotenv').config();
 
 async function connectToMongoDB() {
-    return mongoose.connect('mongodb://127.0.0.1:27017/courseSellingApp')
+    return mongoose.connect(process.env.MONGO_URL)
     .then(()=> {
         console.log("DB connected");
     })

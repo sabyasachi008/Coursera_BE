@@ -6,6 +6,8 @@ const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const { JWT_ADMIN_PASSWORD } = require('../config');
 const { adminMiddleware } = require('../middlewares/admin.middleware');
+const { Course } = require('../models/course.model');
+
 
 adminRouter.post('/signup', async (req, res)=> {
    try {
@@ -44,16 +46,61 @@ adminRouter.post('/signin', async (req, res)=> {
     }
 })
 
-adminRouter.post('/', adminMiddleware, (req, res)=> {
-    res.json({ message : "Create course"});
+adminRouter.post('/course', adminMiddleware, async (req, res)=> {
+    const adminId = req.userId;
+    const { title, description, imageUrl, price } = req.body;
+
+    const course = await Course.create({ 
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
+        price: price,
+        creatorId: adminId
+    });
+    await course.save();
+    res.json({ message: "Course created successfully", courseId: course._id });
+    
+
 })
 
-adminRouter.put('/', adminMiddleware, (req, res)=> {
-    res.json({message: "Update Course"});
+adminRouter.put('/course', adminMiddleware, async (req, res)=> {
+    const adminId = req.userId;
+    const { title, description, imageUrl, price, courseId } = req.body;
+    
+    // alternate way to check if the course is created by the same user who want's to modify it 
+    // const course = await Course.findOne({_id: courseId, creatorId: adminId});
+    // if(!course) {
+    //     return res.status(403).json({message:"Course not found"});
+    // }
+
+    const result = await Course.updateOne({    //check for both course ID and the creatorID should match 
+        _id: courseId,
+        creatorId: adminId,
+    }, 
+        { 
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
+        price: price,
+    });
+    res.json({ message: "Course Updated successfully", courseId: courseId });
 })
 
-adminRouter.get('/bulk', (req, res)=> {
-    res.json({message: "Get all courses"});
+adminRouter.get('/course/bulk', adminMiddleware, async (req, res)=> {
+
+    const adminId = req.userId;
+
+    if(!adminId) {
+        return res.status(403).json({message: "Admin not found"});
+    }
+    const course = await Course.find({
+        creatorId: adminId
+    });
+    if(!course) {
+        return res.status(403).json({message:"No courses found"});
+    }
+
+    return res.json({message:"Courses fetched successfully", course: course});
 })
 
 module.exports = {

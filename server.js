@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const PORT = 8001;
@@ -17,7 +19,7 @@ app.get('/health', (req, res)=> {
 
 
 app.use('/api/v1/user', userRouter);
-app.use('/api/v1/courses', courseRouter);
+app.use('/api/v1/course', courseRouter);
 app.use('/api/v1/admin', adminRouter);
 
 

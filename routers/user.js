@@ -6,8 +6,10 @@ const userRouter = Router();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
-const { JWT_USER_PASSOWRD } = require('../config');
-
+const { JWT_USER_PASSWORD } = require('../config');
+const { Purchase } = require('../models/purchase.model')
+const { Course } = require('../models/course.model')
+const { userMiddleware } = require('../middlewares/user.middleware');
 
 userRouter.post('/signup', async (req, res)=> {
     try {
@@ -45,7 +47,7 @@ userRouter.post('/signin', async (req, res)=> {
             return res.status(403).json({message:"Invalid Password"});
         }
         
-        const token = jwt.sign({ userId: user._id}, JWT_USER_PASSOWRD);
+        const token = jwt.sign({ userId: user._id}, JWT_USER_PASSWORD);
         res.json({message:"User logged in successfully", token});
     }
     catch(err) {
@@ -56,13 +58,30 @@ userRouter.post('/signin', async (req, res)=> {
 
 })
 
-userRouter.get('/purchases', (req, res)=> {
+userRouter.get('/purchases', userMiddleware, async (req, res)=> {
     try {
 
+        const userId = req.userId;
+        const purchases = await Purchase.find({userId});
+        
+        if(!purchases) {
+            return res.status(404).json({message:"No purchases found"});
+        }
+
+        // let purchasedCourseIds = [];
+
+        // for(let i= 0; i<<purchases.length; i++) {
+        //     purchasedCourseIds.push(purchases[i].courseId);
+        // }
+        
+        const purchasedData = await Course.find({
+            _id: { $in: purchases.map(x=> x.courseId)}
+        })
+        return res.json({message:"Purchases fetched successfully", purchases, courseData: purchasedData});
     } 
     catch(err) {
         console.error(err);
-        return res.json({message: "Internal Server Error"});
+        return res.status(500).json({message: "Internal Server Error"});
     }
 })
 

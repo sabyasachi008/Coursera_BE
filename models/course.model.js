@@ -7,34 +7,22 @@ const courseSchema = mongoose.Schema({
     title:{
         type: String,
         required: true,
-        trim: true,
-        lowercase: true,
-        minlength: 3,
-        maxlength: 30
+       
     },
     description:{
         type: String,
         required: true,
-        trim: true,
-        lowercase: true,
-        minlength: 3,
-        maxlength: 30
+        
     },
-    price:{
-        type: Number,
-        required: true,
-        trim: true,
-        lowercase: true,
-        minlength: 3,
-        maxlength: 30
-    },
-    image:{
+    imageUrl:{
         type: String,
         required: true,
-        trim: true,
-        lowercase: true,
-        minlength: 3,
-        maxlength: 30
+     
+    },
+     price:{
+        type: Number,
+        required: true,
+     
     },
     creatorId: ObjectId,
     createdAt:{

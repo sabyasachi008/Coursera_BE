@@ -15,8 +15,8 @@ const purchaseSchema = mongoose.Schema({
     }
 })
 
-const puchaseModel = mongoose.model('Purchase', purchaseSchema);
+const Purchase = mongoose.model('Purchase', purchaseSchema);
 
 module.exports = {
-    puchaseModel: puchaseModel
+    Purchase
 };
